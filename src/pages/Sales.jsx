@@ -12,12 +12,7 @@ import {
 import { useData } from '../context/DataContext'
 import SaleDetailPanel from '../components/SaleDetailPanel'
 import AddSaleModal from '../components/AddSaleModal'
-
-const shortDate = (dateStr) => {
-  const d = new Date(dateStr + 'T00:00:00')
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-  return `${d.getDate()} ${months[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`
-}
+import { shortDate, saleNetProfit } from '../utils/helpers'
 
 export default function Sales() {
   const { sales, updateSale } = useData()
@@ -268,7 +263,7 @@ export default function Sales() {
           </div>
 
           {filtered.map((sale) => {
-            const netSaleProfit = (sale.salePrice * sale.qtySold) - (sale.costBasis * sale.qtySold) - (sale.platformFees || 0) - (sale.shippingCost || 0)
+            const netSaleProfit = saleNetProfit(sale)
 
             return (
               <button

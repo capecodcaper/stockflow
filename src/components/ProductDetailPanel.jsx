@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { conditions } from '../data/demoProducts'
 import { useData } from '../context/DataContext'
-import { getStatusBadgeColor } from '../utils/helpers'
+import { getStatusBadgeColor, inputClass } from '../utils/helpers'
 import SaleFormFields from './SaleFormFields'
 
 export default function ProductDetailPanel({ product, onClose, onUpdate, onDelete, onLogSale }) {
@@ -137,8 +137,6 @@ export default function ProductDetailPanel({ product, onClose, onUpdate, onDelet
   }
 
   const handleDelete = () => { onDelete(product.id); onClose() }
-
-  const inputClass = "w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
 
   return (
     <>
@@ -473,7 +471,6 @@ function DetailView({ product }) {
 }
 
 function RestockForm({ product, restockQty, setRestockQty, restockCost, setRestockCost, restockDate, setRestockDate, restockSource, setRestockSource, onCancel, onSubmit }) {
-  const inputClass = "w-full px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
   return (
     <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-4 space-y-4">
       <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-300">Add More Stock</p>

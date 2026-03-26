@@ -73,3 +73,28 @@ export function shortDate(dateStr) {
   const year = String(d.getFullYear()).slice(2)
   return `${day} ${month} ${year}`
 }
+
+// ─── Sale profit calculations ────────────────────────────────
+// Use these instead of writing the formula inline every time.
+
+/** Total revenue from a sale (price × qty). */
+export function saleRevenue(sale) {
+  return (sale.salePrice || 0) * (sale.qtySold || 0)
+}
+
+/** Revenue minus cost-of-goods (before fees/shipping). */
+export function saleGrossProfit(sale) {
+  return saleRevenue(sale) - (sale.costBasis || 0) * (sale.qtySold || 0)
+}
+
+/** Profit after cost, platform fees, and shipping. */
+export function saleNetProfit(sale) {
+  return saleGrossProfit(sale) - (sale.platformFees || 0) - (sale.shippingCost || 0)
+}
+
+// ─── Shared form styling ─────────────────────────────────────
+// Standard classes for inputs and selects used across the app.
+
+export const inputClass = "w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+
+export const selectClass = "text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"

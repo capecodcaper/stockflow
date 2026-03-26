@@ -16,13 +16,15 @@ const disputeOptions = [
   { value: 'lost', label: 'Lost', activeClass: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
 ]
 
+import { saleGrossProfit, saleNetProfit } from '../utils/helpers'
+
 export default function SaleDetailPanel({ sale, onClose, onUpdate }) {
   const [showMore, setShowMore] = useState(false)
 
   if (!sale) return null
 
-  const grossProfit = (sale.salePrice * sale.qtySold) - (sale.costBasis * sale.qtySold)
-  const netProfit = grossProfit - (sale.platformFees || 0) - (sale.shippingCost || 0)
+  const grossProfit = saleGrossProfit(sale)
+  const netProfit = saleNetProfit(sale)
 
   const update = (field, value) => {
     onUpdate({ ...sale, [field]: value })

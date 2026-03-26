@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useData } from '../../context/DataContext'
 import { conditions as appConditions } from '../../data/demoProducts'
-import { currency, pct } from '../../utils/helpers'
+import { currency, pct, saleRevenue, saleNetProfit, selectClass } from '../../utils/helpers'
 
 const groupByOptions = [
   { id: 'platform', label: 'Platform', icon: Store, desc: 'Compare profitability across selling platforms' },
@@ -105,11 +105,11 @@ export default function CustomTab({ products, sales }) {
       const g = groups[key]
       g.sales++
       g.units += sl.qtySold
-      g.revenue += sl.salePrice * sl.qtySold
+      g.revenue += saleRevenue(sl)
       g.cogs += sl.costBasis * sl.qtySold
       g.fees += sl.platformFees || 0
       g.shipping += sl.shippingCost || 0
-      g.profit += (sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0)
+      g.profit += saleNetProfit(sl)
     })
 
     Object.values(groups).forEach(g => {
@@ -138,11 +138,11 @@ export default function CustomTab({ products, sales }) {
     filteredSales.forEach(sl => {
       t.sales++
       t.units += sl.qtySold
-      t.revenue += sl.salePrice * sl.qtySold
+      t.revenue += saleRevenue(sl)
       t.cogs += sl.costBasis * sl.qtySold
       t.fees += sl.platformFees || 0
       t.shipping += sl.shippingCost || 0
-      t.profit += (sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0)
+      t.profit += saleNetProfit(sl)
     })
     t.margin = t.revenue > 0 ? (t.profit / t.revenue) * 100 : 0
     t.roi = t.cogs > 0 ? (t.profit / t.cogs) * 100 : 0
@@ -150,8 +150,6 @@ export default function CustomTab({ products, sales }) {
   }, [filteredSales])
 
   const activeGroupOption = groupByOptions.find(o => o.id === groupBy)
-
-  const selectClass = "text-sm bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 
   return (
     <div className="space-y-5">

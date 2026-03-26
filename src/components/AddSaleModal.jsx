@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useData } from '../context/DataContext'
+import { inputClass } from '../utils/helpers'
 import SaleFormFields from './SaleFormFields'
 
 export default function AddSaleModal({ isOpen, onClose }) {
@@ -73,8 +74,6 @@ export default function AddSaleModal({ isOpen, onClose }) {
     setBuyerName(''); setShippingCost(''); setPlatformFees(''); setFeesEstimated(false); setTrackingNumber('')
     onClose()
   }
-
-  const inputClass = "w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

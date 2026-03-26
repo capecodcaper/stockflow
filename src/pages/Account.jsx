@@ -17,8 +17,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useData } from '../context/DataContext'
-
-const inputClass = "w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+import { inputClass } from '../utils/helpers'
 
 function TagList({ items, onAdd, onRemove, newValue, setNewValue, placeholder, color }) {
   return (

@@ -1,5 +1,6 @@
 import { Truck, HandCoins, Upload } from 'lucide-react'
 import { platformFeeRates } from '../data/demoProducts'
+import { inputClass as sharedInputClass } from '../utils/helpers'
 
 /**
  * Shared sale form fields used by both AddSaleModal and QuickSaleForm.
@@ -22,9 +23,9 @@ export default function SaleFormFields({
   sellingPlatforms,
   accentColor = 'indigo', // 'indigo' for modal, 'green' for quick sale
 }) {
-  const ringClass = `focus:ring-${accentColor}-500`
-  const inputClass = `w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${ringClass}`
-  const dollarInputClass = `w-full pl-7 pr-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 ${ringClass}`
+  const ringOverride = accentColor !== 'indigo' ? `focus:ring-${accentColor}-500` : ''
+  const inputClass = ringOverride ? sharedInputClass.replace('focus:ring-indigo-500', ringOverride) : sharedInputClass
+  const dollarInputClass = inputClass.replace('px-3', 'pl-7 pr-3')
 
   const estimateFees = (plat, price) => {
     const rate = platformFeeRates[plat]

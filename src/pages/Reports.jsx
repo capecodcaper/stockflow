@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { BarChart3, Package, ShoppingCart, TrendingUp, SlidersHorizontal } from 'lucide-react'
 import { useData } from '../context/DataContext'
-import { daysAgo } from '../utils/helpers'
+import { daysAgo, saleNetProfit, saleRevenue } from '../utils/helpers'
 import OverviewTab from './reports/OverviewTab'
 import InventoryTab from './reports/InventoryTab'
 import SalesTab from './reports/SalesTab'
@@ -26,7 +26,7 @@ export default function Reports() {
     const totalSoldUnits = products.reduce((s, p) => s + p.quantitySold, 0)
     const unsoldUnits = totalUnits - totalSoldUnits
     const totalInvested = products.reduce((s, p) => s + p.purchasePrice * p.quantity, 0)
-    const totalRevenue = sales.reduce((s, sl) => s + sl.salePrice * sl.qtySold, 0)
+    const totalRevenue = sales.reduce((s, sl) => s + saleRevenue(sl), 0)
     const totalCOGS = sales.reduce((s, sl) => s + sl.costBasis * sl.qtySold, 0)
     const totalFees = sales.reduce((s, sl) => s + (sl.platformFees || 0), 0)
     const totalShipping = sales.reduce((s, sl) => s + (sl.shippingCost || 0), 0)
@@ -34,7 +34,8 @@ export default function Reports() {
     const netProfit = totalRevenue - totalExpenses
     const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0
     const roi = totalCOGS > 0 ? (netProfit / totalCOGS) * 100 : 0
-    const avgSalePrice = sales.length > 0 ? totalRevenue / sales.reduce((s, sl) => s + sl.qtySold, 0) : 0
+    const totalSoldQty = sales.reduce((s, sl) => s + sl.qtySold, 0)
+    const avgSalePrice = totalSoldQty > 0 ? totalRevenue / totalSoldQty : 0
     const sellThrough = totalUnits > 0 ? (totalSoldUnits / totalUnits) * 100 : 0
 
     const unsoldValue = products.reduce((s, p) => s + p.purchasePrice * (p.quantity - p.quantitySold), 0)
@@ -49,8 +50,8 @@ export default function Reports() {
     })
     sales.forEach(sl => {
       if (byCategory[sl.category]) {
-        byCategory[sl.category].revenue += sl.salePrice * sl.qtySold
-        byCategory[sl.category].profit += (sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0)
+        byCategory[sl.category].revenue += saleRevenue(sl)
+        byCategory[sl.category].profit += saleNetProfit(sl)
       }
     })
 
@@ -70,9 +71,9 @@ export default function Reports() {
       const plat = sl.platform || 'Local / No Platform'
       if (!byPlatform[plat]) byPlatform[plat] = { sales: 0, revenue: 0, fees: 0, profit: 0, units: 0 }
       const bp = byPlatform[plat]
-      bp.sales++; bp.units += sl.qtySold; bp.revenue += sl.salePrice * sl.qtySold
+      bp.sales++; bp.units += sl.qtySold; bp.revenue += saleRevenue(sl)
       bp.fees += sl.platformFees || 0
-      bp.profit += (sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0)
+      bp.profit += saleNetProfit(sl)
     })
 
     const localSales = sales.filter(s => s.saleType === 'local')
@@ -92,12 +93,12 @@ export default function Reports() {
     }
 
     // Top performers
-    const salesWithProfit = sales.map(sl => ({
-      ...sl,
-      netProfit: (sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0),
-      margin: ((sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0)) / (sl.salePrice * sl.qtySold) * 100,
-      roiPct: ((sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0)) / (sl.costBasis * sl.qtySold) * 100,
-    }))
+    const salesWithProfit = sales.map(sl => {
+      const rev = saleRevenue(sl)
+      const net = saleNetProfit(sl)
+      const cogs = sl.costBasis * sl.qtySold
+      return { ...sl, netProfit: net, margin: rev > 0 ? (net / rev) * 100 : 0, roiPct: cogs > 0 ? (net / cogs) * 100 : 0 }
+    })
     const topByProfit = [...salesWithProfit].sort((a, b) => b.netProfit - a.netProfit)
     const topByROI = [...salesWithProfit].sort((a, b) => b.roiPct - a.roiPct)
 
@@ -106,8 +107,8 @@ export default function Reports() {
     sales.forEach(sl => {
       const month = sl.saleDate.substring(0, 7)
       if (!byMonth[month]) byMonth[month] = { revenue: 0, profit: 0, count: 0 }
-      byMonth[month].revenue += sl.salePrice * sl.qtySold
-      byMonth[month].profit += (sl.salePrice * sl.qtySold) - (sl.costBasis * sl.qtySold) - (sl.platformFees || 0) - (sl.shippingCost || 0)
+      byMonth[month].revenue += saleRevenue(sl)
+      byMonth[month].profit += saleNetProfit(sl)
       byMonth[month].count++
     })
 
