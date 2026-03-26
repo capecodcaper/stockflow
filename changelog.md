@@ -1,3 +1,89 @@
+## Session: 2026-03-26
+
+### What was done
+- **Initialized git repository** — set up git with commit history so changes can be tracked and rolled back. First commit captures the full project as of last session's cleanup.
+- **Refactoring round 2 — deduplicated profit formulas, input styling, and shortDate:**
+  - Created `saleNetProfit()`, `saleGrossProfit()`, `saleRevenue()` in helpers.js — replaced 11+ inline copies of the profit calculation formula across 6 files (Sales, SaleDetailPanel, Reports, CustomTab)
+  - Created shared `inputClass` and `selectClass` constants in helpers.js — removed 6 local copies from AddSaleModal, ProductDetailPanel (2), Account, SaleFormFields, CustomTab
+  - Removed duplicate `shortDate()` from Sales.jsx (was using a local copy instead of the shared one in helpers.js)
+- **Sales page: auto-prefill sale price** — when selecting a product in the Log Sale modal, the sale price now auto-fills with that product's listing price (user can still change it)
+- **Sales page: edit button on sale detail panel** — added pencil icon in sale detail panel header; clicking it opens a full edit form for sale type, price, quantity, date, platform, fees, shipping, tracking, and buyer name with Save/Cancel buttons
+- **Sales page: ADHD-friendly stats redesign** — replaced plain stat boxes with color-tinted cards (blue for revenue, neutral for cost, orange for fees, green/red for profit); Net Profit gets a slightly larger colored number so the eye goes there first; added profit margin % under Net Profit
+- **Sales page: time range label** — added an indigo pill next to "Sales Summary" that shows the active time range in plain English (e.g., "Last 30 days", "All time")
+- **Deployed to Netlify** — all changes live at `https://stillinventory.netlify.app`
+
+### Current state
+- **Pages built:**
+  - Dashboard — fully functional (hero profit banner with time range selector, 3 quick stat cards, Kanban board with real product cards, gradient/glow visual treatment)
+  - Inventory — fully functional (search, filter, sort, grid/list, add/edit/delete products, Quick Log Sale with fee estimator, qty/remaining on cards)
+  - Sales — fully functional (color-tinted summary stats with time range selector + label, filters, sale list with shorthand dates, Log Sale modal with auto-prefill + fee estimator, sale detail panel with full edit mode)
+  - Reports — fully functional (5 tabs split into separate files: Overview, Inventory, Sales, Profitability, Custom report builder with 6 filters and card-based results)
+  - Account — fully functional for categories/statuses/platforms (changes propagate app-wide via DataContext); profile/preferences still visual-only (no backend)
+- **Components:**
+  - Layout.jsx, Sidebar.jsx, Header.jsx
+  - ProductCard.jsx, AddProductModal.jsx, ProductDetailPanel.jsx (with sub-components: PriceSummary, RestockHistory, EditForm, DetailView, RestockForm, DeleteConfirm, DetailRow)
+  - SaleDetailPanel.jsx (now with view mode + full edit mode), AddSaleModal.jsx, SaleFormFields.jsx (shared between AddSaleModal + ProductDetailPanel)
+  - reports/ReportWidgets.jsx (StatCard, Section, BarFill)
+  - reports/OverviewTab.jsx, InventoryTab.jsx, SalesTab.jsx, ProfitabilityTab.jsx, CustomTab.jsx
+- **Shared utilities:**
+  - `src/utils/helpers.js` — currency(), pct(), daysAgo(), shortDate(), saleRevenue(), saleGrossProfit(), saleNetProfit(), inputClass, selectClass, statusBadgeColors, statusDotColors, getStatusBadgeColor(), getStatusDotColor()
+- **Key features working:**
+  - Dark/light mode toggle in header (sun/moon icon)
+  - Mobile-responsive layout with hamburger menu
+  - Add/edit/delete products with quantity tracking
+  - Quick Log Sale from product detail (Local/Shipped toggle with conditional fields)
+  - Log Sale from Sales page via modal (auto-prefills listing price + platform)
+  - Edit existing sales from sale detail panel (price, qty, date, type, platform, fees, shipping, tracking, buyer)
+  - Platform fee auto-estimator in both sale forms (9 platforms with approximate rates)
+  - Sales filtering by type, platform, time period
+  - Sales summary stats with independent time range selector (1W/1M/3M/6M/1Y/All) + plain-English label
+  - Slide-in side panels for product and sale details
+  - Dashboard Kanban board with real products grouped by status (supports custom statuses)
+  - Dashboard profit stats with time range filtering (Today/7d/30d/90d/All)
+  - Shared state across pages via React Context (products, sales, categories, statuses, platforms)
+  - Account page categories/statuses/platforms management — changes propagate to all dropdowns and filters app-wide
+  - Add More Stock (restock) with weighted average pricing
+  - Full Reports suite with custom report builder (group by 6 dimensions, 6 filters including Brand/Source/Condition, sort, card-based results with insight badges)
+  - Git version control initialized with commit history
+  - Live deployment to Netlify (`https://stillinventory.netlify.app`)
+- **Known issues:**
+  - Account page profile/preferences don't persist (no backend)
+  - Kanban board is read-only (drag-and-drop deferred to backend phase)
+  - Photo/receipt upload placeholders are non-functional (need file storage)
+  - Reports Overview/Inventory/Sales/Profitability tabs still use old dense bar+text pattern (ADHD audit not yet applied to these tabs)
+
+### What's next
+- **Competitor analysis & market research** — user wants to discuss potential competitors, realistic expectations for entering the reseller inventory app market, and timelines for development/launch
+- **Frontend polish (see BACKLOG.md):**
+  - Inventory page: visual redesign/polish pass
+  - Clothing sizes: discuss how to handle (S/M/L, numeric, etc.)
+- **ADHD design audit** — apply cleaner visual treatment to the remaining 4 Reports tabs and review Inventory page
+- **Backend-dependent features** — see `BACKLOG.md` for full list
+
+### Resume instructions
+- Project path: `C:\Users\johnd\OneDrive\Desktop\Claude Stuff\stockflow\`
+- Dev server: open terminal in VS Code, make sure it's **Git Bash** (not PowerShell), then run `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npm run dev` — opens at `localhost:5173`
+- **Netlify deploy** (after changes): `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npx vite build && netlify deploy --prod --dir=dist`
+- **Live URL**: `https://stillinventory.netlify.app`
+- Tech stack: React 19 + Vite 8 + Tailwind CSS v4 (via PostCSS) + React Router 7 + Lucide React icons
+- State management: React Context API (DataContext for products/sales/categories/statuses/platforms, ThemeContext for dark mode)
+- Demo data lives in `src/data/demoProducts.js` (products, sales, constants: platformFeeRates, conditions) — categories/statuses/platforms now managed via DataContext, seeded from demoProducts defaults
+- Shared utilities live in `src/utils/helpers.js` (currency, pct, daysAgo, shortDate, sale profit calcs, shared input/select styles, status colors)
+- Feature backlog lives in `BACKLOG.md` at project root
+- Git initialized — commit after changes with `git add` + `git commit`
+- The user is not code-savvy — always explain in plain language and give exact terminal instructions
+- All data is currently demo/local state (no backend yet)
+- "StockFlow" is a placeholder name — may change later
+- User prefers side panel popouts over inline expand, mobile-first design
+- User wants honest pushback on bad ideas with reasoning and brief alternatives
+- The purpose of the MVP is as a visual spec — so the user can show a developer exactly what they want without endless back-and-forth
+- **Target audience:** small-time resellers/flippers, laptops/phones/tablets, ADHD-friendly design is critical
+- **ADHD design rules:** one big number pops, color tells the story, leaderboard over grids, less is more, subtle background cues — but NOT gaudy (no full-width gradient banners)
+- **Codebase is clean and well-organized** — shared utilities, split components, no major duplication
+- **Deploy after every change** — user wants Netlify always up to date
+
+---
+
 ## Session: 2026-03-25
 
 ### What was done

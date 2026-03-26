@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react'
 import {
-  DollarSign,
-  TrendingUp,
-  Package,
   Search,
   Truck,
   HandCoins,
   Plus,
   SlidersHorizontal,
+  ArrowUpRight,
+  ArrowDownRight,
+  DollarSign,
 } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import SaleDetailPanel from '../components/SaleDetailPanel'
@@ -84,6 +84,8 @@ export default function Sales() {
   const totalCost = statsSales.reduce((sum, s) => sum + s.costBasis * s.qtySold, 0)
   const totalFees = statsSales.reduce((sum, s) => sum + (s.platformFees || 0) + (s.shippingCost || 0), 0)
   const netProfit = totalRevenue - totalCost - totalFees
+  const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0
+  const totalSales = statsSales.length
 
   const currentSale = selectedSale
     ? sales.find((s) => s.id === selectedSale.id) || null
@@ -93,10 +95,15 @@ export default function Sales() {
 
   return (
     <div className="space-y-4 lg:space-y-6">
-      {/* Summary cards */}
+      {/* Sales Summary */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 lg:p-5">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sales Summary</span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Sales Summary</span>
+            <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full">
+              {{ '1w': 'Last 7 days', '1m': 'Last 30 days', '3m': 'Last 90 days', '6m': 'Last 6 months', '1y': 'Last year', 'all': 'All time' }[statsRange]}
+            </span>
+          </div>
           <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
             {[
               { key: '1w', label: '1W' },
@@ -120,16 +127,66 @@ export default function Sales() {
             ))}
           </div>
         </div>
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-          <StatBox label="Revenue" value={`$${totalRevenue.toLocaleString()}`} icon={DollarSign} color="text-blue-500" />
-          <StatBox label="Cost" value={`$${totalCost.toLocaleString()}`} icon={Package} color="text-gray-500" />
-          <StatBox label="Fees" value={`$${totalFees.toFixed(2)}`} icon={Truck} color="text-orange-500" />
-          <StatBox
-            label="Net Profit"
-            value={`${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)}`}
-            icon={TrendingUp}
-            color={netProfit >= 0 ? 'text-green-500' : 'text-red-500'}
-          />
+          {/* Revenue */}
+          <div className="rounded-xl bg-blue-50 dark:bg-blue-900/15 border border-blue-100 dark:border-blue-800/30 p-3.5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="w-6 h-6 rounded-md bg-blue-500/15 dark:bg-blue-400/15 flex items-center justify-center">
+                <DollarSign className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <span className="text-xs font-medium text-blue-600/70 dark:text-blue-400/70">Revenue</span>
+            </div>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">${totalRevenue.toLocaleString()}</p>
+            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{totalSales} sale{totalSales !== 1 ? 's' : ''}</p>
+          </div>
+
+          {/* Cost */}
+          <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50 p-3.5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="w-6 h-6 rounded-md bg-gray-500/10 dark:bg-gray-400/10 flex items-center justify-center">
+                <ArrowDownRight className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+              </div>
+              <span className="text-xs font-medium text-gray-400 dark:text-gray-500">Cost</span>
+            </div>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">${totalCost.toLocaleString()}</p>
+          </div>
+
+          {/* Fees */}
+          <div className="rounded-xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800/20 p-3.5">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className="w-6 h-6 rounded-md bg-orange-500/15 dark:bg-orange-400/10 flex items-center justify-center">
+                <Truck className="w-3.5 h-3.5 text-orange-500 dark:text-orange-400" />
+              </div>
+              <span className="text-xs font-medium text-orange-500/70 dark:text-orange-400/60">Fees + Ship</span>
+            </div>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">${totalFees.toLocaleString()}</p>
+          </div>
+
+          {/* Net Profit — slightly emphasized */}
+          <div className={`rounded-xl p-3.5 border ${
+            netProfit >= 0
+              ? 'bg-green-50 dark:bg-green-900/15 border-green-200 dark:border-green-800/30'
+              : 'bg-red-50 dark:bg-red-900/15 border-red-200 dark:border-red-800/30'
+          }`}>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                netProfit >= 0
+                  ? 'bg-green-500/15 dark:bg-green-400/15'
+                  : 'bg-red-500/15 dark:bg-red-400/15'
+              }`}>
+                {netProfit >= 0
+                  ? <ArrowUpRight className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                  : <ArrowDownRight className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                }
+              </div>
+              <span className={`text-xs font-medium ${netProfit >= 0 ? 'text-green-600/70 dark:text-green-400/70' : 'text-red-600/70 dark:text-red-400/70'}`}>Net Profit</span>
+            </div>
+            <p className={`text-2xl font-extrabold ${netProfit >= 0 ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+              {netProfit >= 0 ? '+' : ''}${netProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{profitMargin.toFixed(1)}% margin</p>
+          </div>
         </div>
       </div>
 
@@ -353,14 +410,3 @@ export default function Sales() {
   )
 }
 
-function StatBox({ label, value, icon: Icon, color }) {
-  return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 lg:p-4">
-      <div className="flex items-center gap-1.5 mb-1">
-        <Icon className={`w-3.5 h-3.5 ${color}`} />
-        <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
-      </div>
-      <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white">{value}</p>
-    </div>
-  )
-}

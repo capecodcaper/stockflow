@@ -98,10 +98,15 @@ export default function AddSaleModal({ isOpen, onClose }) {
               onChange={(e) => {
                 setProductId(e.target.value)
                 const p = products.find((p) => p.id === Number(e.target.value))
-                if (p?.platform) {
-                  const match = sellingPlatforms.includes(p.platform)
-                  setPlatform(match ? p.platform : 'Other')
-                  setPlatformOther(match ? '' : p.platform)
+                if (p) {
+                  // Auto-prefill sale price with listing price
+                  if (p.listingPrice) setSalePrice(String(p.listingPrice))
+                  // Auto-prefill platform if product has one
+                  if (p.platform) {
+                    const match = sellingPlatforms.includes(p.platform)
+                    setPlatform(match ? p.platform : 'Other')
+                    setPlatformOther(match ? '' : p.platform)
+                  }
                 }
               }}
               className={inputClass}

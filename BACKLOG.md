@@ -12,12 +12,12 @@
 - [ ] **Photo uploads** — Product photos and pre-shipping/pre-sale photos for sales. Placeholder UI exists throughout. Needs file storage.
 - [ ] **User accounts & auth** — Login, signup, password reset. Account page is a placeholder right now.
 - [ ] **Persistent data** — All data is currently in-browser demo state. Everything resets on refresh. Needs a real database.
-- [ ] **Deploy to a live URL** — Currently runs locally only.
+- [ ] **Deploy to a live URL** — Currently on Netlify (stillinventory.netlify.app) but no backend yet.
 
 ## Frontend Polish (No Backend Needed)
 
-- [ ] **Sales page — tighten up the chart** and add item cost field that prefills automatically (so the user doesn't have to enter it manually)
-- [ ] **Sales page — edit button on individual sale logs** so users can modify a sale after it's been recorded
+- [x] **Sales page — redesign stats + auto-prefill sale price** *(done 2026-03-26)*
+- [x] **Sales page — edit button on individual sale logs** *(done 2026-03-26)*
 - [ ] **Clothing sizes discussion** — need to decide how to handle clothing sizes (S/M/L, numeric, etc.) in the product system. TBD.
 - [ ] **Inventory page — make it more attractive** — visual redesign/polish pass to bring it up to the same level as Dashboard
 
