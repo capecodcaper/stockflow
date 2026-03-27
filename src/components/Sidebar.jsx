@@ -15,7 +15,7 @@ import {
 import { useState, useEffect } from 'react'
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/inventory', icon: Package, label: 'Inventory' },
   { to: '/sales', icon: DollarSign, label: 'Sales' },
   { to: '/reports', icon: BarChart3, label: 'Reports' },
