@@ -86,11 +86,60 @@ The target audience is small-time resellers/flippers. Many have shorter attentio
 
 ---
 
-## Session Start / End
+## Session Start (when user says "starting a session", "picking up", "resuming work", or similar)
 
-- When starting a session, read `changelog.md` to understand where things left off.
-- Present a status update: where we left off, what's next, any issues.
-- At the end of a session, update `changelog.md` with what was done, current state, what's next, and resume instructions.
+Follow these steps exactly:
+
+1. **Read the changelog** at `changelog.md` to understand what's been done and what's next.
+2. **Quick project health check** — run a build to make sure everything compiles:
+   ```
+   npx vite build
+   ```
+   If the build fails, flag it immediately before doing anything else.
+3. **Present a brief status update:**
+   - Here's where we left off: [1-2 sentences from changelog]
+   - Next up: [the pending items from changelog]
+   - Any issues: [build errors or known problems, or "None — everything looks good"]
+4. **Present a to-do list** with "Required" and "Optional" sections based on the changelog and BACKLOG.md, plus a short design note about how upcoming work should look/feel for the target audience.
+5. **Ask:** "Ready to pick up from here, or do you want to work on something else?"
+
+---
+
+## Session End (when user says "closing out", "done for today", "wrap up", or similar)
+
+Follow these steps exactly:
+
+1. **Read the current changelog** so you don't overwrite previous entries.
+2. **Scan the project** to understand current state:
+   - Read `src/App.jsx` for routes and structure
+   - Check all components and pages
+   - Read `package.json` for dependencies
+3. **Ask the user:** "Anything specific you want me to note before I close out?" — Wait for their response before proceeding.
+4. **Write/update `changelog.md`** with a new entry at the TOP of the file (most recent first):
+   ```
+   ## Session: [YYYY-MM-DD]
+
+   ### What was done
+   - [Bullet list of everything built, changed, or fixed this session]
+
+   ### Current state
+   - **Pages built:** [list all pages and their status]
+   - **Components:** [list all components]
+   - **Key features working:** [list interactive features that are functional]
+   - **Known issues:** [any bugs or incomplete items]
+
+   ### What's next
+   - [Bullet list of pending work, in priority order]
+
+   ### Resume instructions
+   - Project path and dev server command
+   - Tech stack summary
+   - Key context for next session
+   ---
+   ```
+5. **Push to GitHub** so the latest changelog is available from any device.
+6. **Deploy to Netlify** if any code changes were made this session.
+7. **Confirm to the user** that everything is saved and they can resume from any device.
 
 ---
 
