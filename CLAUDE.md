@@ -80,7 +80,7 @@ The target audience is small-time resellers/flippers. Many have shorter attentio
 
 - **Live URL:** https://stillinventory.netlify.app
 - **Deploy command:** `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npx vite build && netlify deploy --prod --dir=dist`
-- **Deploy after every code change** so the live URL stays current. The user shares this link with others.
+- **DO NOT auto-deploy.** Netlify bandwidth is limited. During sessions, only run the local dev server. At session close (`/closeinv`), ask the user if they want to deploy to Netlify before doing it.
 - **GitHub repo:** https://github.com/capecodcaper/stockflow (private)
 - **Push to GitHub after changes** to keep the repo in sync.
 

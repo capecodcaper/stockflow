@@ -59,12 +59,10 @@ export default function ProductCard({ product, onClick }) {
         {/* Price + profit — the visual anchor */}
         <div className="mt-auto">
           <div className="flex items-baseline justify-between mb-2">
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Asking</span>
               <span className="text-lg font-bold text-gray-900 dark:text-white">
                 {currency(product.listingPrice)}
-              </span>
-              <span className="text-xs text-gray-400 line-through">
-                {currency(product.purchasePrice)}
               </span>
             </div>
           </div>
@@ -85,6 +83,7 @@ export default function ProductCard({ product, onClick }) {
                   ? isGoodDeal ? 'text-emerald-500' : 'text-amber-500'
                   : potentialProfit < 0 ? 'text-red-500' : 'text-gray-400'
               }`} />
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Profit</span>
               <span className={`text-sm font-bold ${
                 potentialProfit > 0
                   ? isGoodDeal ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'
@@ -93,16 +92,8 @@ export default function ProductCard({ product, onClick }) {
                 {potentialProfit >= 0 ? '+' : ''}{currency(potentialProfit)}
               </span>
             </div>
-            <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-              potentialProfit > 0
-                ? isGoodDeal
-                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
-                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
-                : potentialProfit < 0
-                  ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
-                  : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-            }`}>
-              {potentialProfit >= 0 ? '+' : ''}{profitPercent}%
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              Cost {currency(product.purchasePrice)}
             </span>
           </div>
         </div>
