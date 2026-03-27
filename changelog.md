@@ -1,3 +1,81 @@
+## Session: 2026-03-27
+
+### What was done
+- **Landing page** — built a full marketing/landing page at `/` with hero section ("Know your numbers. Grow your flip."), 6 feature cards, "Why StockFlow?" differentiators checklist, preview stat cards, dark/light mode toggle, and CTA buttons linking to the app demo. Standalone page (no sidebar/header).
+- **Route restructure** — landing page now lives at `/`, app Dashboard moved to `/dashboard`. Updated Sidebar, Header, and all nav links accordingly.
+- **Netlify SPA routing** — added `public/_redirects` file so refreshing on any app route doesn't 404.
+- **Inventory page polish** — added 4 summary stat cards at top (Items, Invested, Listing Value, Potential Profit) with gradient accent bars matching Dashboard style.
+- **ProductCard redesign** — profit is now the visual anchor with a color-coded profit pill at the bottom. Added aging indicator (red badge for items sitting 30+ days). Compact photo area. Clear labels: "Asking $140.00" / "Profit +$85.00" / "Cost $55.00" — every number is labeled, no ambiguity.
+- **List view redesign** — profit accent bars on left edge (green/amber/red), profit shows both dollar and percentage, mobile-friendly layout that stacks on phones and grids on desktop.
+- **Toolbar mobile optimization** — filter button shows active filter count badge, labels hide on mobile to save space.
+- **Deploy policy change** — Netlify bandwidth is limited (~50% used). Updated CLAUDE.md to stop auto-deploying. Now only deploys at session close if user requests it.
+- **ADHD design philosophy discussion** — researched ADHD-friendly patterns, then refined with user. Established clear direction: app is a business tool providing CLARITY, not a feel-good app. No confetti, no gamification, no positive-reinforcement messaging. Value = replacing mental math, surfacing what matters, reducing friction.
+- **Planned next session features** — 6 "clarity tools" (health score, suggested pricing, smart sort, undo toasts, dead stock section, monthly P&L) plus a secondary prototype branch for exploration.
+
+### Current state
+- **Pages built:**
+  - LandingPage — fully functional (standalone marketing page at `/`, hero + features + differentiators + CTAs)
+  - Dashboard — fully functional at `/dashboard` (hero profit banner, time range selector, 3 quick stat cards, Kanban board)
+  - Inventory — fully functional at `/inventory` (4 summary stats, redesigned cards with clear labels + aging indicators, color-coded list view, search/filter/sort)
+  - Sales — fully functional (color-tinted summary stats, filters, sale list, Log Sale modal, sale detail panel with edit mode)
+  - Reports — fully functional (5 tabs: Overview, Inventory, Sales, Profitability, Custom report builder)
+  - Account — fully functional for categories/statuses/platforms; profile/preferences visual-only
+- **Components:**
+  - Layout.jsx, Sidebar.jsx, Header.jsx
+  - ProductCard.jsx (redesigned — profit anchor, aging badge, clear labels)
+  - AddProductModal.jsx, ProductDetailPanel.jsx (sub-components: PriceSummary, RestockHistory, EditForm, DetailView, RestockForm, DeleteConfirm, DetailRow)
+  - SaleDetailPanel.jsx, AddSaleModal.jsx, SaleFormFields.jsx
+  - reports/ReportWidgets.jsx, OverviewTab.jsx, InventoryTab.jsx, SalesTab.jsx, ProfitabilityTab.jsx, CustomTab.jsx
+  - LandingPage.jsx (standalone, outside Layout)
+- **Key features working:**
+  - Everything from previous sessions, plus:
+  - Landing page with dark/light mode and "Try the Demo" / "Open App" CTAs
+  - Inventory summary stats (items remaining, invested, listing value, potential profit)
+  - Product cards with clear Asking/Profit/Cost labels and aging indicators
+  - Color-coded list view with profit accent bars
+  - Netlify SPA `_redirects` for client-side routing
+- **Known issues:**
+  - Account page profile/preferences don't persist (no backend)
+  - Kanban board is read-only (drag-and-drop deferred to backend phase)
+  - Photo/receipt upload placeholders are non-functional (need file storage)
+  - Reports Overview/Inventory/Sales/Profitability tabs still use old dense pattern (ADHD audit pending)
+  - GitHub repo is still private (user needs to make public for phone access)
+  - Netlify bandwidth ~50% used — deploy conservatively
+
+### What's next
+- **Clarity tools (priority — commit to main):**
+  1. Inventory Health Score (letter grade on dashboard)
+  2. Suggested pricing from user's own sale history
+  3. Smart default sort ("needs attention first")
+  4. Undo toasts instead of confirmation dialogs
+  5. Dead Stock section (items 30/60/90+ days, price drop quick action)
+  6. Monthly P&L snapshot card
+- **Secondary prototype branch** — speculative features for user to explore, not for main commit. Take creative liberties.
+- **ADHD design audit** — apply cleaner treatment to 4 Reports tabs
+- **Clothing sizes** — discuss S/M/L vs numeric handling
+- **Make GitHub repo public** — user action needed
+
+### Resume instructions
+- Project path: `C:\Users\johnd\OneDrive\Desktop\Claude Stuff\stockflow\`
+- Dev server: open terminal in VS Code (Git Bash, not PowerShell), run `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npm run dev` — opens at `localhost:5173`
+- **Landing page** is at `localhost:5173/` — app Dashboard is at `localhost:5173/dashboard`
+- **Netlify deploy** (only when user requests): `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npx vite build && netlify deploy --prod --dir=dist`
+- **DO NOT auto-deploy.** Ask user at session close if they want to deploy.
+- **Live URL**: `https://stillinventory.netlify.app`
+- **GitHub repo**: `https://github.com/capecodcaper/stockflow`
+- Tech stack: React 19 + Vite 8 + Tailwind CSS v4 (via PostCSS) + React Router 7 + Lucide React icons
+- State management: React Context API (DataContext for products/sales/categories/statuses/platforms, ThemeContext for dark mode)
+- Demo data: `src/data/demoProducts.js` — categories/statuses/platforms managed via DataContext
+- Shared utilities: `src/utils/helpers.js` (currency, pct, daysAgo, shortDate, sale profit calcs, input/select styles, status colors)
+- Feature backlog: `BACKLOG.md` | Competitor research: `COMPETITOR_ANALYSIS.md` | Project instructions: `CLAUDE.md`
+- **Design philosophy:** Business tool providing CLARITY. No gamification, no confetti, no positive-reinforcement messaging. Replace mental math, surface what matters, reduce friction. App should feel like checking your bank balance.
+- **Target audience:** small-time resellers/flippers who are motivated hustlers but get tripped up by tools that feel like homework
+- User is not code-savvy — plain language, exact terminal instructions
+- All data is demo/local state (no backend yet)
+- "StockFlow" is a placeholder name
+
+---
+
 ## Session: 2026-03-26 (Part 2 — Research & Infrastructure)
 
 ### What was done
