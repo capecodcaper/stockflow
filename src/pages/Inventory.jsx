@@ -3,11 +3,13 @@ import { Search, SlidersHorizontal, ArrowUpDown, LayoutGrid, List, Plus, Package
 import ProductCard from '../components/ProductCard'
 import AddProductModal from '../components/AddProductModal'
 import ProductDetailPanel from '../components/ProductDetailPanel'
+import UndoToast from '../components/UndoToast'
 import { useSearchParams } from 'react-router-dom'
 import { useData } from '../context/DataContext'
-import { getStatusBadgeColor, currency } from '../utils/helpers'
+import { getStatusBadgeColor, currency, daysAgo } from '../utils/helpers'
 
 const sortOptions = [
+  { value: 'attention', label: 'Needs Attention' },
   { value: 'newest', label: 'Newest First' },
   { value: 'oldest', label: 'Oldest First' },
   { value: 'price-high', label: 'Price: High to Low' },
@@ -22,10 +24,11 @@ export default function Inventory() {
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [statusFilter, setStatusFilter] = useState('All')
-  const [sortBy, setSortBy] = useState('newest')
+  const [sortBy, setSortBy] = useState('attention')
   const [showFilters, setShowFilters] = useState(false)
   const [viewMode, setViewMode] = useState('grid')
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [toast, setToast] = useState(null)
 
   const showAddModal = searchParams.get('add') === 'true'
   const setShowAddModal = (show) => {
@@ -75,6 +78,34 @@ export default function Inventory() {
     }
 
     switch (sortBy) {
+      case 'attention': {
+        // Score each product by how much it needs your attention right now.
+        // Higher score = more urgent = shows first.
+        const attentionScore = (p) => {
+          let score = 0
+          const remaining = p.quantity - (p.quantitySold || 0)
+          if (remaining <= 0) return -100 // Sold items sink to bottom
+
+          const age = daysAgo(p.purchaseDate)
+          // Aging stock gets priority — the longer it sits, the more urgent
+          if (age >= 90) score += 50
+          else if (age >= 60) score += 35
+          else if (age >= 30) score += 20
+
+          // Items not yet listed need action (Sourced, In Hand)
+          if (p.status === 'Sourced') score += 15
+          else if (p.status === 'In Hand') score += 10
+
+          // High-profit items you haven't sold yet — don't let money sit
+          const profitPct = p.purchasePrice > 0 ? ((p.listingPrice - p.purchasePrice) / p.purchasePrice) * 100 : 0
+          if (profitPct >= 50) score += 10
+          else if (profitPct >= 30) score += 5
+
+          return score
+        }
+        result.sort((a, b) => attentionScore(b) - attentionScore(a))
+        break
+      }
       case 'newest':
         result.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate))
         break
@@ -341,8 +372,24 @@ export default function Inventory() {
           product={currentProduct}
           onClose={() => setSelectedProduct(null)}
           onUpdate={updateProduct}
-          onDelete={deleteProduct}
+          onDelete={(product) => {
+            deleteProduct(product.id)
+            setSelectedProduct(null)
+            setToast({
+              message: `"${product.name}" deleted`,
+              product,
+            })
+          }}
           onLogSale={addSale}
+        />
+      )}
+
+      {toast && (
+        <UndoToast
+          message={toast.message}
+          onUndo={() => addProduct(toast.product)}
+          onExpire={() => {}}
+          onDismiss={() => setToast(null)}
         />
       )}
     </div>

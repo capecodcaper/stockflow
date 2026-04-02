@@ -20,6 +20,7 @@ import { conditions } from '../data/demoProducts'
 import { useData } from '../context/DataContext'
 import { getStatusBadgeColor, inputClass } from '../utils/helpers'
 import SaleFormFields from './SaleFormFields'
+import PriceHelper from './PriceHelper'
 
 export default function ProductDetailPanel({ product, onClose, onUpdate, onDelete, onLogSale }) {
   const { categories, statuses, platforms: sellingPlatforms } = useData()
@@ -27,7 +28,6 @@ export default function ProductDetailPanel({ product, onClose, onUpdate, onDelet
   const [form, setForm] = useState(product)
   const [showSaleForm, setShowSaleForm] = useState(false)
   const [showRestockForm, setShowRestockForm] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showRestockHistory, setShowRestockHistory] = useState(false)
 
   // Quick log sale form state
@@ -136,7 +136,7 @@ export default function ProductDetailPanel({ product, onClose, onUpdate, onDelet
     setRestockDate(new Date().toISOString().split('T')[0])
   }
 
-  const handleDelete = () => { onDelete(product.id); onClose() }
+  const handleDelete = () => { onDelete(product); onClose() }
 
   return (
     <>
@@ -189,6 +189,9 @@ export default function ProductDetailPanel({ product, onClose, onUpdate, onDelet
 
           {/* Quantity + Profit summary */}
           <PriceSummary product={product} remaining={remaining} profit={profit} profitPercent={profitPercent} restocks={restocks} />
+
+          {/* Price Helper — sale history + eBay/Google price check */}
+          <PriceHelper productName={product.name} category={product.category} brand={product.brand} />
 
           {/* Restock history */}
           {restocks.length > 0 && (
@@ -272,13 +275,15 @@ export default function ProductDetailPanel({ product, onClose, onUpdate, onDelet
                 />
               )}
 
-              {/* Delete */}
+              {/* Delete — instant with undo toast at page level */}
               {!showSaleForm && !showRestockForm && (
-                <DeleteConfirm
-                  show={showDeleteConfirm}
-                  onToggle={() => setShowDeleteConfirm(!showDeleteConfirm)}
-                  onDelete={handleDelete}
-                />
+                <button
+                  onClick={handleDelete}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl text-sm font-medium transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete Product
+                </button>
               )}
             </div>
           )}
@@ -522,27 +527,6 @@ function RestockForm({ product, restockQty, setRestockQty, restockCost, setResto
       <div className="flex gap-2">
         <button onClick={onCancel} className="flex-1 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Cancel</button>
         <button onClick={onSubmit} className="flex-1 px-3 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">Add Stock</button>
-      </div>
-    </div>
-  )
-}
-
-function DeleteConfirm({ show, onToggle, onDelete }) {
-  if (!show) {
-    return (
-      <button onClick={onToggle} className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl text-sm font-medium transition-colors">
-        <Trash2 className="w-4 h-4" />
-        Delete Product
-      </button>
-    )
-  }
-  return (
-    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 space-y-3">
-      <p className="text-sm font-semibold text-red-800 dark:text-red-300">Are you sure?</p>
-      <p className="text-xs text-red-600 dark:text-red-400">This cannot be undone.</p>
-      <div className="flex gap-2">
-        <button onClick={onToggle} className="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Cancel</button>
-        <button onClick={onDelete} className="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">Yes, Delete</button>
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { X, ImagePlus, Upload } from 'lucide-react'
 import { useState } from 'react'
 import { conditions as appConditions } from '../data/demoProducts'
 import { useData } from '../context/DataContext'
+import PriceHelper from './PriceHelper'
 
 const initialForm = {
   name: '',
@@ -205,6 +206,11 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
               </div>
             </div>
           </div>
+
+          {/* Price Helper — shows sale history + eBay/Google links */}
+          {(form.name || form.category) && (
+            <PriceHelper productName={form.name} category={form.category} brand={form.brand} />
+          )}
 
           {/* Row: Status + Source */}
           <div className="grid grid-cols-2 gap-4">

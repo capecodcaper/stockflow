@@ -1,3 +1,77 @@
+## Session: 2026-04-02
+
+### What was done
+- **Inventory Health Score** — big letter grade card (A/B/C/D) on the Dashboard, calculated from profit margins, sell-through rate, stock freshness, and aging inventory percentage. Color-coded (green/blue/amber/red) with 3 plain-English bullet points explaining the grade.
+- **Health Score detail panel** — clicking the grade card opens a slide-in panel with: full score breakdown (4 progress bars with points out of max), category-by-category breakdown (units, invested, potential profit), list of aging stock items with day counts, and a plain-English explanation of how the grading works. Each score bar has an info icon with hover tooltip explaining the metric.
+- **Price Helper** — new shared component added to both the Add Product modal and Product Detail panel. Shows your sale history for the same category (avg, best, lowest price) plus two quick-search buttons: "eBay Sold" (opens eBay completed listings) and "Google Shopping" — both pre-filled with the product name + brand so you don't have to type anything.
+- **Smart default sort ("Needs Attention")** — new default sort on the Inventory page. Aging stock (30/60/90+ days) floats to the top, unlisted items (Sourced/In Hand) get a bump, high-profit items get priority, sold items sink to bottom. Page now opens to "what should I deal with today?"
+- **Undo toasts** — replaced the "Are you sure?" confirmation dialog on product delete with instant action + 5-second undo toast bar (Gmail/Slack pattern). Dark bar at bottom with product name, Undo button, and countdown progress bar. Works on both Dashboard and Inventory pages.
+- **Fixed dark mode toggle** — Tailwind CSS v4 was using `prefers-color-scheme` media query by default instead of the `dark` class on `<html>`. Added `@custom-variant dark` rule to `index.css` so the toggle button actually works.
+- **Dark mode as default** — new visitors now see dark mode on first load (was previously following browser preference). User preference still saved in localStorage.
+
+### Current state
+- **Pages built:**
+  - LandingPage — fully functional (standalone marketing page at `/`, hero + features + differentiators + CTAs)
+  - Dashboard — fully functional at `/dashboard` (hero profit banner, time range selector, Health Score card with detail panel, 3 quick stat cards, Kanban board)
+  - Inventory — fully functional at `/inventory` (4 summary stats, "Needs Attention" default sort, redesigned cards with clear labels + aging indicators, color-coded list view, search/filter/sort, undo toast on delete)
+  - Sales — fully functional (color-tinted summary stats, filters, sale list, Log Sale modal, sale detail panel with edit mode)
+  - Reports — fully functional (5 tabs: Overview, Inventory, Sales, Profitability, Custom report builder)
+  - Account — fully functional for categories/statuses/platforms; profile/preferences visual-only
+- **Components:**
+  - Layout.jsx, Sidebar.jsx, Header.jsx
+  - ProductCard.jsx (profit anchor, aging badge, clear labels)
+  - AddProductModal.jsx (with PriceHelper), ProductDetailPanel.jsx (sub-components: PriceSummary, RestockHistory, EditForm, DetailView, RestockForm, DetailRow + PriceHelper)
+  - PriceHelper.jsx (shared — sale history + eBay/Google price check links)
+  - UndoToast.jsx (shared — instant action + 5-second undo bar)
+  - SaleDetailPanel.jsx, AddSaleModal.jsx, SaleFormFields.jsx
+  - reports/ReportWidgets.jsx, OverviewTab.jsx, InventoryTab.jsx, SalesTab.jsx, ProfitabilityTab.jsx, CustomTab.jsx
+  - LandingPage.jsx (standalone, outside Layout)
+- **Key features working:**
+  - Everything from previous sessions, plus:
+  - Inventory Health Score with clickable detail panel (score breakdown, category breakdown, aging stock list, info tooltips)
+  - Price Helper in Add Product modal and Product Detail panel (category sale history + eBay Sold / Google Shopping links)
+  - "Needs Attention" smart sort on Inventory page (default)
+  - Undo toasts on product delete (Dashboard + Inventory)
+  - Dark mode toggle works correctly (Tailwind v4 class-based)
+  - Dark mode is the default for new visitors
+- **Known issues:**
+  - Account page profile/preferences don't persist (no backend)
+  - Kanban board is read-only (drag-and-drop deferred to backend phase)
+  - Photo/receipt upload placeholders are non-functional (need file storage)
+  - Reports Overview/Inventory/Sales/Profitability tabs still use old dense pattern (ADHD audit pending)
+  - GitHub repo is still private (user needs to make public for phone access)
+  - Netlify bandwidth ~50% used — deploy conservatively
+
+### What's next
+- **Dead Stock section** — items 30/60/90+ days with cost reminder and "price drop" quick action
+- **Monthly P&L snapshot card** — one card: revenue in, costs out, fees eaten, net profit
+- **ADHD design audit** — apply cleaner treatment to 4 Reports tabs (Overview, Inventory, Sales, Profitability)
+- **Clothing sizes** — discuss S/M/L vs numeric handling
+- **Secondary prototype branch** — speculative features for user to explore
+- **Make GitHub repo public** — user action needed
+
+### Resume instructions
+- Project path: `C:\Users\johnd\OneDrive\Desktop\Claude Stuff\stockflow\`
+- Dev server: open terminal in VS Code (Git Bash, not PowerShell), run `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npm run dev` — opens at `localhost:5173`
+- **Landing page** is at `localhost:5173/` — app Dashboard is at `localhost:5173/dashboard`
+- **Netlify deploy** (only when user requests): `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npx vite build && netlify deploy --prod --dir=dist`
+- **DO NOT auto-deploy.** Ask user at session close if they want to deploy.
+- **Live URL**: `https://stillinventory.netlify.app`
+- **GitHub repo**: `https://github.com/capecodcaper/stockflow`
+- Tech stack: React 19 + Vite 8 + Tailwind CSS v4 (via PostCSS) + React Router 7 + Lucide React icons
+- State management: React Context API (DataContext for products/sales/categories/statuses/platforms, ThemeContext for dark mode)
+- Demo data: `src/data/demoProducts.js` — categories/statuses/platforms managed via DataContext
+- Shared utilities: `src/utils/helpers.js` (currency, pct, daysAgo, shortDate, sale profit calcs, input/select styles, status colors)
+- Feature backlog: `BACKLOG.md` | Competitor research: `COMPETITOR_ANALYSIS.md` | Project instructions: `CLAUDE.md`
+- **Design philosophy:** Business tool providing CLARITY. No gamification, no confetti, no positive-reinforcement messaging. Replace mental math, surface what matters, reduce friction. App should feel like checking your bank balance.
+- **Target audience:** small-time resellers/flippers who are motivated hustlers but get tripped up by tools that feel like homework
+- User is not code-savvy — plain language, exact terminal instructions
+- All data is demo/local state (no backend yet)
+- "StockFlow" is a placeholder name
+- **Dark mode is the default** for new visitors
+
+---
+
 ## Session: 2026-03-27
 
 ### What was done
