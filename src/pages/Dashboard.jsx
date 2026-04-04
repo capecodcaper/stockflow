@@ -1,4 +1,4 @@
-import { Package, DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight, BarChart3, Zap, Eye, ShieldCheck, X, AlertTriangle, Clock, Percent, Activity, Info } from 'lucide-react'
+import { Package, DollarSign, ArrowUpRight, ArrowDownRight, BarChart3, Eye, ShieldCheck, X, AlertTriangle, Clock, Percent, Activity, Info, Skull, ChevronDown, Tag } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useState, useMemo } from 'react'
 import ProductDetailPanel from '../components/ProductDetailPanel'
@@ -119,6 +119,33 @@ export default function Dashboard() {
 
     return { score: total, grade, color, factors, detail }
   }, [products, profitMargin, sellThrough])
+
+  // --- Dead Stock (items sitting 30+ days) ---
+  const [priceDropId, setPriceDropId] = useState(null)
+  const deadStock = useMemo(() => {
+    const unsold = products
+      .filter(p => (p.quantity - (p.quantitySold || 0)) > 0)
+      .map(p => {
+        const age = daysAgo(p.purchaseDate)
+        const remaining = p.quantity - (p.quantitySold || 0)
+        return { ...p, age, remaining, investedCost: p.purchasePrice * remaining }
+      })
+      .filter(p => p.age >= 30)
+      .sort((a, b) => b.age - a.age)
+
+    const critical = unsold.filter(p => p.age >= 90)
+    const warning = unsold.filter(p => p.age >= 60 && p.age < 90)
+    const watch = unsold.filter(p => p.age >= 30 && p.age < 60)
+    const totalTiedUp = unsold.reduce((sum, p) => sum + p.investedCost, 0)
+
+    return { all: unsold, critical, warning, watch, totalTiedUp }
+  }, [products])
+
+  const handlePriceDrop = (product, pctOff) => {
+    const newPrice = Math.round(product.listingPrice * (1 - pctOff / 100) * 100) / 100
+    updateProduct(product.id, { listingPrice: newPrice })
+    setPriceDropId(null)
+  }
 
   // --- Group products by status for Kanban ---
   const kanbanStatuses = statuses
@@ -369,6 +396,71 @@ export default function Dashboard() {
         </div>
       </div>
       </div>
+
+      {/* ── Dead Stock ── */}
+      {deadStock.all.length > 0 && (
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 lg:p-6">
+          {/* Header with total tied up */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+                <Skull className="w-4 h-4 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Dead Stock</h2>
+                <p className="text-xs text-gray-400">{deadStock.all.length} item{deadStock.all.length !== 1 ? 's' : ''} sitting unsold</p>
+              </div>
+            </div>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl px-4 py-2.5 text-center">
+              <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest">Money Tied Up</p>
+              <p className="text-2xl font-extrabold text-red-600 dark:text-red-400">{currency(deadStock.totalTiedUp)}</p>
+            </div>
+          </div>
+
+          {/* Severity buckets */}
+          <div className="space-y-4">
+            {/* Critical: 90+ days */}
+            {deadStock.critical.length > 0 && (
+              <DeadStockBucket
+                label="Critical"
+                sublabel="90+ days"
+                items={deadStock.critical}
+                color="red"
+                priceDropId={priceDropId}
+                setPriceDropId={setPriceDropId}
+                onPriceDrop={handlePriceDrop}
+                onSelectProduct={setSelectedProduct}
+              />
+            )}
+            {/* Warning: 60–89 days */}
+            {deadStock.warning.length > 0 && (
+              <DeadStockBucket
+                label="Warning"
+                sublabel="60–89 days"
+                items={deadStock.warning}
+                color="amber"
+                priceDropId={priceDropId}
+                setPriceDropId={setPriceDropId}
+                onPriceDrop={handlePriceDrop}
+                onSelectProduct={setSelectedProduct}
+              />
+            )}
+            {/* Watch: 30–59 days */}
+            {deadStock.watch.length > 0 && (
+              <DeadStockBucket
+                label="Watch"
+                sublabel="30–59 days"
+                items={deadStock.watch}
+                color="yellow"
+                priceDropId={priceDropId}
+                setPriceDropId={setPriceDropId}
+                onPriceDrop={handlePriceDrop}
+                onSelectProduct={setSelectedProduct}
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Kanban Board ── */}
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 lg:p-6">
@@ -658,6 +750,145 @@ function HealthScorePanel({ healthScore, profitMargin, sellThrough, onClose }) {
         </div>
       </div>
     </>
+  )
+}
+
+// ─── Dead Stock Bucket ──────────────────────────────────────
+function DeadStockBucket({ label, sublabel, items, color, priceDropId, setPriceDropId, onPriceDrop, onSelectProduct }) {
+  const colorMap = {
+    red: {
+      headerBg: 'bg-red-50 dark:bg-red-900/20',
+      headerBorder: 'border-red-200 dark:border-red-800/40',
+      badge: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+      dot: 'bg-red-500',
+      ageBadge: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400',
+      rowBorder: 'border-red-100 dark:border-red-900/30',
+      rowBg: 'bg-red-50/50 dark:bg-red-900/10',
+      accent: 'bg-gradient-to-b from-red-400 to-red-600',
+    },
+    amber: {
+      headerBg: 'bg-amber-50 dark:bg-amber-900/20',
+      headerBorder: 'border-amber-200 dark:border-amber-800/40',
+      badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+      dot: 'bg-amber-500',
+      ageBadge: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400',
+      rowBorder: 'border-amber-100 dark:border-amber-900/30',
+      rowBg: 'bg-amber-50/50 dark:bg-amber-900/10',
+      accent: 'bg-gradient-to-b from-amber-400 to-amber-600',
+    },
+    yellow: {
+      headerBg: 'bg-yellow-50 dark:bg-yellow-900/20',
+      headerBorder: 'border-yellow-200 dark:border-yellow-800/40',
+      badge: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400',
+      dot: 'bg-yellow-500',
+      ageBadge: 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400',
+      rowBorder: 'border-yellow-100 dark:border-yellow-900/30',
+      rowBg: 'bg-yellow-50/30 dark:bg-yellow-900/10',
+      accent: 'bg-gradient-to-b from-yellow-400 to-yellow-500',
+    },
+  }
+  const c = colorMap[color]
+  const bucketTiedUp = items.reduce((sum, p) => sum + p.investedCost, 0)
+
+  return (
+    <div>
+      {/* Bucket header */}
+      <div className={`flex items-center justify-between px-3 py-2 rounded-lg ${c.headerBg} border ${c.headerBorder} mb-2`}>
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${c.dot}`} />
+          <span className="text-sm font-bold text-gray-900 dark:text-white">{label}</span>
+          <span className="text-xs text-gray-400">{sublabel}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{currency(bucketTiedUp)} tied up</span>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.badge}`}>{items.length}</span>
+        </div>
+      </div>
+
+      {/* Item rows */}
+      <div className="space-y-1.5">
+        {items.map(item => (
+          <div key={item.id} className="relative">
+            <div
+              className={`flex items-center gap-3 rounded-lg border ${c.rowBorder} ${c.rowBg} overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+            >
+              {/* Accent bar */}
+              <div className={`w-1.5 self-stretch flex-shrink-0 ${c.accent}`} />
+
+              {/* Main content — clicking opens detail panel */}
+              <div
+                className="flex-1 flex items-center gap-3 py-2.5 pr-2 min-w-0"
+                onClick={() => onSelectProduct(item)}
+              >
+                {/* Name + brand */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{item.name}</p>
+                  <p className="text-xs text-gray-400 truncate">{item.brand}{item.size ? ` · ${item.size}` : ''}</p>
+                </div>
+
+                {/* Cost reminder */}
+                <div className="hidden sm:block text-right flex-shrink-0">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wide">You paid</p>
+                  <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{currency(item.purchasePrice)}</p>
+                </div>
+
+                {/* Current listing */}
+                <div className="text-right flex-shrink-0">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wide">Asking</p>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">{currency(item.listingPrice)}</p>
+                </div>
+
+                {/* Age badge */}
+                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold flex-shrink-0 ${c.ageBadge}`}>
+                  <Clock className="w-3 h-3" />
+                  {item.age}d
+                </span>
+              </div>
+
+              {/* Drop Price button */}
+              <div className="flex-shrink-0 pr-3">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setPriceDropId(priceDropId === item.id ? null : item.id)
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+                >
+                  <Tag className="w-3 h-3" />
+                  <span className="hidden sm:inline">Drop Price</span>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${priceDropId === item.id ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            {/* Price drop options */}
+            {priceDropId === item.id && (
+              <div className="mt-1.5 ml-4 flex items-center gap-2 flex-wrap animate-fade-in">
+                <span className="text-xs text-gray-400">Quick drop:</span>
+                {[10, 15, 20].map(pct => {
+                  const newPrice = Math.round(item.listingPrice * (1 - pct / 100) * 100) / 100
+                  return (
+                    <button
+                      key={pct}
+                      onClick={() => onPriceDrop(item, pct)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/40 transition-colors"
+                    >
+                      -{pct}% → {currency(newPrice)}
+                    </button>
+                  )
+                })}
+                <button
+                  onClick={() => { setPriceDropId(null); onSelectProduct(item) }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors"
+                >
+                  Custom...
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
