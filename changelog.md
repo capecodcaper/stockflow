@@ -1,3 +1,87 @@
+## Session: 2026-04-06
+
+### What was done
+- **Monthly P&L snapshot card** — added to Dashboard (on master). Shows current month's revenue, costs, fees as proportional horizontal bars, plus net profit badge and "% kept as profit" / "% lost to fees" bottom line. Always shows current calendar month regardless of hero banner's time range picker.
+- **Dashboard clutter discussion** — analyzed all 5 Dashboard sections through ADHD/new-business-owner lens. Identified that ~15 numbers hit the user at once, hero + P&L were showing redundant info, and Dead Stock + Kanban were too heavy for a "quick glance" page.
+- **Built 3 Dashboard layout options on separate branches** for user to compare:
+  - **Option A ("Bank Balance")** — `dashboard-option-a` branch. Minimal Dashboard: simplified hero (removed revenue/costs/fees mini-cards), kept health + stats + P&L, Dead Stock replaced with compact clickable alert bar. Kanban moved to its own **"Status Board" page** with sidebar nav entry.
+  - **Option B ("Morning Coffee")** — `dashboard-option-b` branch. Balanced: everything stays on Dashboard but Dead Stock and Kanban are **collapsed by default** with chevron toggles. Shows summary info even when collapsed (item counts, money tied up, status badges).
+  - **Option C ("Command Center")** — `dashboard-option-c` branch. Reorganized: hero + P&L merged into one section with "This Month" time range option, Kanban moved above Dead Stock (overview first, action items last), Kanban limited to 3 items per column with "+X more".
+- **Deployed all 3 options to Netlify preview URLs** for side-by-side comparison:
+  - Option A: `https://option-a--stillinventory.netlify.app/dashboard`
+  - Option B: `https://option-b--stillinventory.netlify.app/dashboard`
+  - Option C: `https://option-c--stillinventory.netlify.app/dashboard`
+- **Netlify upgraded to Pro plan** — user upgraded. 1 TB bandwidth, 3 concurrent builds. Updated deploy rules: only deploy for multi-design comparisons, at /closeinv, or when explicitly asked.
+
+### Current state
+- **Branches:**
+  - `master` — has the Monthly P&L card + Dead Stock section from previous session. This is the "current" version.
+  - `dashboard-option-a` — minimal Dashboard + Status Board page (pending user decision)
+  - `dashboard-option-b` — collapsible sections (pending user decision)
+  - `dashboard-option-c` — reorganized layout (pending user decision)
+- **Pages built (on master):**
+  - LandingPage — fully functional (standalone marketing page at `/`, hero + features + differentiators + CTAs)
+  - Dashboard — fully functional at `/dashboard` (hero profit banner, time range selector, Health Score card with detail panel, 3 quick stat cards, Monthly P&L card, Dead Stock section, Kanban board)
+  - Inventory — fully functional at `/inventory` (4 summary stats, "Needs Attention" default sort, redesigned cards with clear labels + aging indicators, color-coded list view, search/filter/sort, undo toast on delete)
+  - Sales — fully functional (color-tinted summary stats, filters, sale list, Log Sale modal, sale detail panel with edit mode)
+  - Reports — fully functional (5 tabs: Overview, Inventory, Sales, Profitability, Custom report builder)
+  - Account — fully functional for categories/statuses/platforms; profile/preferences visual-only
+- **Components (on master):**
+  - Layout.jsx, Sidebar.jsx, Header.jsx
+  - ProductCard.jsx (profit anchor, aging badge, clear labels)
+  - AddProductModal.jsx (with PriceHelper), ProductDetailPanel.jsx (sub-components: PriceSummary, RestockHistory, EditForm, DetailView, RestockForm, DetailRow + PriceHelper)
+  - PriceHelper.jsx (shared — sale history + eBay/Google price check links)
+  - UndoToast.jsx (shared — instant action + 5-second undo bar)
+  - SaleDetailPanel.jsx, AddSaleModal.jsx, SaleFormFields.jsx
+  - reports/ReportWidgets.jsx, OverviewTab.jsx, InventoryTab.jsx, SalesTab.jsx, ProfitabilityTab.jsx, CustomTab.jsx
+  - LandingPage.jsx (standalone, outside Layout)
+- **Additional on Option A branch only:**
+  - StatusBoard.jsx — standalone Kanban page with sidebar nav entry
+- **Key features working:**
+  - Everything from previous sessions, plus:
+  - Monthly P&L card on Dashboard (revenue/costs/fees bars, net profit, profit % kept, fees % lost)
+  - Dead Stock section on Dashboard (severity buckets: critical 90+, warning 60-89, watch 30-59 days, with price drop quick actions)
+- **Known issues:**
+  - Account page profile/preferences don't persist (no backend)
+  - Kanban board is read-only (drag-and-drop deferred to backend phase)
+  - Photo/receipt upload placeholders are non-functional (need file storage)
+  - Reports Overview/Inventory/Sales/Profitability tabs still use old dense pattern (ADHD audit pending)
+  - GitHub repo is still private (user needs to make public for phone access)
+  - **User has NOT yet picked a Dashboard layout option** — 3 branches await decision
+
+### What's next
+- **DECISION NEEDED: Pick Dashboard layout** — user needs to compare Option A/B/C preview URLs and choose (or mix-and-match). Then merge chosen option to master and clean up unused branches.
+  - Option A: `https://option-a--stillinventory.netlify.app/dashboard`
+  - Option B: `https://option-b--stillinventory.netlify.app/dashboard`
+  - Option C: `https://option-c--stillinventory.netlify.app/dashboard`
+- **ADHD design audit** — apply cleaner treatment to 4 Reports tabs (Overview, Inventory, Sales, Profitability)
+- **Clothing sizes** — discuss S/M/L vs numeric handling
+- **Secondary prototype branch** — speculative features for user to explore
+- **Make GitHub repo public** — user action needed
+
+### Resume instructions
+- Project path: `C:\Users\johnd\OneDrive\Desktop\Claude Stuff\stockflow\`
+- Dev server: open terminal in VS Code (Git Bash, not PowerShell), run `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npm run dev` — opens at `localhost:5173`
+- **Landing page** is at `localhost:5173/` — app Dashboard is at `localhost:5173/dashboard`
+- **Netlify deploy** (only when user requests, for design comparisons, or at session close): `cd ~/OneDrive/Desktop/"Claude Stuff"/stockflow && npx vite build && netlify deploy --prod --dir=dist`
+- **Deploy rules:** Only deploy for multi-design comparisons, at /closeinv (ask first), or when user explicitly asks. User is on Netlify Pro plan (1 TB bandwidth).
+- **Live URL**: `https://stillinventory.netlify.app`
+- **GitHub repo**: `https://github.com/capecodcaper/stockflow`
+- Tech stack: React 19 + Vite 8 + Tailwind CSS v4 (via PostCSS) + React Router 7 + Lucide React icons
+- State management: React Context API (DataContext for products/sales/categories/statuses/platforms, ThemeContext for dark mode)
+- Demo data: `src/data/demoProducts.js` — categories/statuses/platforms managed via DataContext
+- Shared utilities: `src/utils/helpers.js` (currency, pct, daysAgo, shortDate, sale profit calcs, input/select styles, status colors)
+- Feature backlog: `BACKLOG.md` | Competitor research: `COMPETITOR_ANALYSIS.md` | Project instructions: `CLAUDE.md`
+- **Design philosophy:** Business tool providing CLARITY. No gamification, no confetti, no positive-reinforcement messaging. Replace mental math, surface what matters, reduce friction. App should feel like checking your bank balance.
+- **Target audience:** small-time resellers/flippers who are motivated hustlers but get tripped up by tools that feel like homework
+- User is not code-savvy — plain language, exact terminal instructions
+- All data is demo/local state (no backend yet)
+- "StockFlow" is a placeholder name
+- **Dark mode is the default** for new visitors
+- **3 Dashboard layout branches exist** — user needs to pick one next session. Present the 3 preview URLs immediately.
+
+---
+
 ## Session: 2026-04-02
 
 ### What was done
