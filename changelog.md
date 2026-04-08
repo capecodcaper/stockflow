@@ -1,3 +1,39 @@
+## Session: 2026-04-07 _(Remote — laptop session)_
+
+### What was done
+- **Laptop environment setup** — installed Node.js, verified npm, installed project dependencies, confirmed build passes clean
+- **Created `/startinv` and `/closeinv` custom commands** — added `.claude/commands/startinv.md` and `.claude/commands/closeinv.md` to the project repo so slash commands work on any machine (previously they only existed on the primary desktop)
+- **Added remote session prompt to closeout flow** — `/closeinv` now asks "Was this a remote session?" and notes it in the changelog if yes
+
+### Current state
+- No code changes to the app itself — all pages, components, and features are the same as the April 6 session
+- **New files added:**
+  - `.claude/commands/startinv.md` — session start slash command
+  - `.claude/commands/closeinv.md` — session close slash command
+- **User has NOT yet picked a Dashboard layout option** — 3 branches still await decision:
+  - Option A ("Bank Balance"): `https://option-a--stillinventory.netlify.app/dashboard`
+  - Option B ("Morning Coffee"): `https://option-b--stillinventory.netlify.app/dashboard`
+  - Option C ("Command Center"): `https://option-c--stillinventory.netlify.app/dashboard`
+
+### What's next
+- **DECISION NEEDED: Pick Dashboard layout** — compare Option A/B/C and choose (or mix-and-match). Then merge chosen option to master and clean up unused branches.
+- **ADHD design audit** — apply cleaner treatment to 4 Reports tabs (Overview, Inventory, Sales, Profitability)
+- **Clothing sizes** — discuss S/M/L vs numeric handling
+- **Secondary prototype branch** — speculative features for user to explore
+- **Make GitHub repo public** — user action needed
+
+### Resume instructions
+- Project path (primary desktop): `C:\Users\johnd\OneDrive\Desktop\Claude Stuff\stockflow\`
+- Project path (laptop): `C:\Users\johnd\Desktop\stockflow\`
+- Dev server: `npm run dev` — opens at `localhost:5173`
+- **Landing page** is at `localhost:5173/` — app Dashboard is at `localhost:5173/dashboard`
+- **Live URL**: `https://stillinventory.netlify.app`
+- **GitHub repo**: `https://github.com/capecodcaper/stockflow`
+- Tech stack: React 19 + Vite 8 + Tailwind CSS v4 (via PostCSS) + React Router 7 + Lucide React icons
+- All data is demo/local state (no backend yet)
+- `/startinv` and `/closeinv` slash commands now live in `.claude/commands/` inside the repo
+---
+
 ## Session: 2026-04-06
 
 ### What was done
